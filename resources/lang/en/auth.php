@@ -86,4 +86,8 @@ return [
     'email_change_title' => 'Change your email address',
     'email_change_new' => 'New email address',
     'email_changed' => 'Your email address has been changed. Check your mailbox to validate it.',
+
+    'oauth_login_title' => 'or login with',
+    'oauth_failed' => 'Could not login with 3rd-party provider.',
+    'oauth_create_disabled' => '3rd-party registration is currently disabled',
 ];

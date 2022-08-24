@@ -73,6 +73,22 @@
                 </ul>
               </div>
 
+              @if(config('oauth.enable'))
+                <hr/>
+
+                <h2>{{ trans('auth.oauth_login_title') }}</h2>
+
+                <div class="flex justify-around">
+                  @if(config('oauth.oidc')['client_id'])
+                    <a class="btn btn-secondary" href="{{ route('oauth.redirect', ['driver' => 'oidc']) }}">{{ config('oauth.oidc')['name'] }}</a>
+                  @endif
+
+                  @if(config('oauth.google')['client_id'])
+                    <a class="btn btn-secondary" href="{{ route('oauth.redirect', ['driver' => 'google']) }}">Google</a>
+                  @endif
+                </div>
+              @endif
+
             </form>
           </div>
         </div>

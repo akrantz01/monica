@@ -23,7 +23,7 @@ class CreateUser extends BaseService
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'nullable|min:6',
             'locale' => 'nullable',
             'ip_address' => 'nullable',
         ];
@@ -68,7 +68,7 @@ class CreateUser extends BaseService
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
         $user->email = $data['email'];
-        $user->password = bcrypt($data['password']);
+        if (! empty($data['password'])) $user->password = bcrypt($data['password']);
         $user->locale = $data['locale'] ?? App::getLocale();
 
         return $user;

@@ -18,6 +18,9 @@ use App\Http\Controllers\Contacts\CallsController;
 
 Route::get('/', 'Auth\LoginController@showLoginOrRegister')->name('loginRedirect');
 
+Route::get('/oauth/{driver}', 'Auth\OAuthController@redirect')->name('oauth.redirect');
+Route::get('/oauth/{driver}/callback', 'Auth\OAuthController@callback');
+
 Auth::routes(['verify' => true]);
 
 // Redirect .well-known urls (https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers)
