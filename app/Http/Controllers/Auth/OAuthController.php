@@ -64,9 +64,9 @@ class OAuthController extends Controller
      * Create a user if they do not exist
      *
      * @param \Laravel\Socialite\AbstractUser $socialUser
-     * @return \App\Models\User\User
+     * @return \App\Models\User\User|null
      */
-    protected function findOrCreate(AbstractUser $socialUser): User
+    protected function findOrCreate(AbstractUser $socialUser): User|null
     {
         if (! config('oauth.create_users')) {
             return User::firstWhere('email', $socialUser->getEmail());
