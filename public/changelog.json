@@ -1,6 +1,11 @@
 {
     "entries": [
         {
+            "date": "Aug 24, 2022",
+            "title": "New feature: 3rd-party authentication with OAuth2",
+            "description": "You can now login with 3rd-party providers, such as Google or any provider [supporting OpenID Connect](https://en.wikipedia.org/wiki/List_of_OAuth_providers)."
+        },
+        {
             "date": "Jan 11, 2022",
             "title": "Preview feature: export data as json",
             "description": "We are experimenting with exporting data as json. [Try it now](/settings/export). This feature is in preview mode, please give us feedback on [this GitHub discussion](https://github.com/monicahq/monica/discussions/5824)."
