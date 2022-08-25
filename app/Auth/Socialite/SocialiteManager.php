@@ -8,11 +8,15 @@ use Laravel\Socialite\Two\GoogleProvider;
 
 class SocialiteManager extends Manager
 {
+    // The drivers that can be used
     protected $allowedDrivers = [
         'google',
         'oidc',
     ];
 
+    /**
+     * {@inheritdoc}
+     */
     protected function createDriver($driver)
     {
         if (in_array($driver, $this->allowedDrivers)) {
@@ -23,7 +27,7 @@ class SocialiteManager extends Manager
     }
 
     /**
-     * Create an instance of the specified driver.
+     * Create an instance of the OpenID Connect driver.
      *
      * @return \Laravel\Socialite\Two\AbstractProvider
      */
@@ -31,13 +35,14 @@ class SocialiteManager extends Manager
     {
         $config = $this->config->get('oauth.oidc');
 
-        return $this->buildProvider(
-            OpenIDProvider::class, $config
-        )->discover($config['discovery_url']);
+        $provider = $this->buildProvider(OpenIDProvider::class, $config);
+        $provider->discover($config['discovery_url']);
+
+        return $provider;
     }
 
     /**
-     * Create an instance of the specified driver.
+     * Create an instance of the Google driver.
      *
      * @return \Laravel\Socialite\Two\AbstractProvider
      */

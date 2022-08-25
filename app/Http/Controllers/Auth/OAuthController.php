@@ -49,12 +49,7 @@ class OAuthController extends Controller
             return redirect(route('loginRedirect'))->withErrors(trans('auth.oauth_failed'));
         }
 
-        if (config('oauth.create_users')) {
-            $user = $this->findOrCreate($socialUser);
-        } else {
-            $user = User::firstWhere('email', $socialUser->getEmail());
-        }
-
+        $user = $this->findOrCreate($socialUser);
         if (is_null($user)) {
             return redirect(route('loginRedirect'))->withErrors(trans('auth.oauth_create_disabled'));
         }
@@ -73,15 +68,20 @@ class OAuthController extends Controller
      */
     protected function findOrCreate(AbstractUser $socialUser): User
     {
+        if (! config('oauth.create_users')) {
+            return User::firstWhere('email', $socialUser->getEmail());
+        }
+
         return User::where('email', $socialUser->getEmail())->firstOr(function() use ($socialUser) {
             $profile = $socialUser->user;
+            $name = $this->parseNameParts($profile);
 
             /** @var User $user */
             $user = app(CreateUser::class)->execute([
                 // TODO: associate with account
                 'account_id' => 1,
-                'first_name' => $this->retrieveFirstName($profile),
-                'last_name' => $this->retrieveLastName($profile),
+                'first_name' => $name['first'],
+                'last_name' => $name['last'],
                 'email' => $socialUser->getEmail(),
                 'ip_address' => RequestHelper::ip(),
                 'locale' => $profile['locale'] ?? null,
@@ -100,45 +100,46 @@ class OAuthController extends Controller
         });
     }
 
-    /**
-     * Retrieves the user's first name from any of the possible name fields
-     *
-     * @param array $user
-     * @return string
-     */
-    protected function retrieveFirstName(array $user)
+    protected function parseNameParts(array $user)
     {
-        if (isset($user['given_name'])) return $user['given_name'];
-        elseif (isset($user['name'])) return $this->namePart($user['name'], 1);
-        elseif (isset($user['nickname'])) return $this->namePart($user['nickname'], 1);
-        else return '';
+        if (isset($user['given_name']) && isset($user['family_name'])) {
+            return [
+                'first' => $user['given_name'],
+                'last' => $user['last_name'],
+            ];
+        }
+
+        if (isset($user['name'])) {
+            return $this->parseCombinedName($user['name']);
+        }
+
+        if (isset($user['nickname'])) {
+            return $this->parseCombinedName($user['nickname']);
+        }
+
+        return ['first' => '', 'last' => ''];
     }
 
     /**
-     * Retrieves the user's last name from any of the possible name fields
-     *
-     * @param array $user
-     * @return string
-     */
-    protected function retrieveLastName(array $user)
-    {
-        if (isset($user['family_name'])) return $user['family_name'];
-        elseif (isset($user['name'])) return $this->namePart($user['name'], 2);
-        elseif (isset($user['nickname'])) return $this->namePart($user['nickname'], 2);
-        else return '';
-    }
-
-    /**
-     * Get the first or last part of a name. Returns an empty string if there is only a first part.
+     * Retrieve the first and last name from a space-separated full name
      *
      * @param string $name
-     * @param int $part
-     * @return string
+     * @return array
      */
-    protected function namePart(string $name, int $part)
+    protected function parseCombinedName(string $name)
     {
         $parts = explode(' ', $name, 1);
-        if (count($parts) < $part) return '';
-        else return $parts[$part - 1];
+
+        if (count($parts) < 2) {
+            return [
+                'first' => $name,
+                'last' => '',
+            ];
+        }
+
+        return [
+            'first' => $parts[0],
+            'last' => $parts[1],
+        ];
     }
 }
